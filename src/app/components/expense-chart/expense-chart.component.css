@@ -1,0 +1,41 @@
+/* Add modern chart container styling if needed */
+.bg-white {
+  background-color: #fff;
+}
+.rounded-lg {
+  border-radius: 0.75rem;
+}
+.shadow {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+}
+.p-6 {
+  padding: 1.5rem;
+}
+.max-w-2xl {
+  max-width: 42rem;
+}
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+.mt-8 {
+  margin-top: 2rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.text-gray-700 {
+  color: #374151;
+}
+.w-full {
+  width: 100%;
+}
+.h-80 {
+  height: 20rem;
+}
