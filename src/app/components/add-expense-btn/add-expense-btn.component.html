@@ -1,3 +1,4 @@
+<!-- Add Expense Button -->
 <button
   class="bg-blue-600 text-white px-7 py-2.5 rounded-xl shadow-lg hover:bg-blue-700 transition font-semibold text-base flex items-center gap-2"
   (click)="showModal = true"
@@ -9,12 +10,7 @@
     viewBox="0 0 24 24"
     stroke="currentColor"
   >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M12 4v16m8-8H4"
-    />
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
   </svg>
   Add Expense
 </button>
@@ -27,62 +23,48 @@
   <div
     class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg relative border border-blue-100 animate-fade-in"
   >
+    <!-- Close Button -->
     <button
       (click)="showModal = false"
       class="absolute top-4 right-4 text-gray-400 hover:text-blue-600 transition"
+      aria-label="Close"
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-7 w-7"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M6 18L18 6M6 6l12 12"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
-    <h3
-      class="text-2xl font-extrabold mb-6 text-blue-700 text-center tracking-tight"
-    >
-      Add Expense
-    </h3>
-    <form
-      (ngSubmit)="addExpense()"
-      #expenseForm="ngForm"
-      class="flex flex-col gap-5"
-    >
+
+    <!-- Modal Title -->
+    <h3 class="text-2xl font-extrabold mb-6 text-blue-700 text-center tracking-tight">Add Expense</h3>
+
+    <!-- Form -->
+    <form (ngSubmit)="addExpense()" #expenseForm="ngForm" class="flex flex-col gap-5">
+
+      <!-- Amount & Category -->
       <div class="flex flex-col gap-4 md:flex-row md:gap-4">
         <input
           type="number"
           [(ngModel)]="amount"
           name="amount"
           required
-          placeholder="Amount"
           min="0"
+          placeholder="Amount"
           class="md:flex-1 rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 placeholder:text-blue-300"
+          autofocus
         />
-        <div class="md:flex-1">
-          <select
-            [(ngModel)]="category"
-            name="category"
-            required
-            class="w-full rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 text-gray-700"
-          >
-            <option value="" disabled>Select Category</option>
-            <option value="grocery">Grocery</option>
-            <option value="transport">Transport</option>
-            <option value="entertainment">Entertainment</option>
-            <option value="utilities">Utilities</option>
-            <option value="health">Health</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
+
+        <select
+          [(ngModel)]="category"
+          name="category"
+          required
+          class="md:flex-1 w-full rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 text-gray-700"
+        >
+          <option value="" disabled>Select Category</option>
+          <option *ngFor="let c of categories" [value]="c">{{ c | titlecase }}</option>
+        </select>
       </div>
+
+      <!-- Description -->
       <textarea
         [(ngModel)]="description"
         name="description"
@@ -91,11 +73,26 @@
         rows="2"
         class="rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 placeholder:text-blue-300 resize-none"
       ></textarea>
-       <div>
+
+      <!-- Date -->
+      <div>
         <label for="expense-date" class="block text-sm font-medium text-gray-700">Date</label>
-        <input type="date" id="expense-date" [(ngModel)]="date" name="date" required
-               class="w-full rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50 transition"/>
+        <input
+          type="date"
+          id="expense-date"
+          [(ngModel)]="date"
+          name="date"
+          required
+          class="w-full rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-blue-50 transition"
+        />
       </div>
+
+      <!-- Error Message -->
+      <p *ngIf="balanceError" class="text-red-500 font-medium text-sm mt-1 text-center">
+        ❌ Balance is not enough to cover this expense.
+      </p>
+
+      <!-- Submit -->
       <button
         type="submit"
         [disabled]="expenseForm.invalid"
