@@ -1,0 +1,103 @@
+<button
+  class="bg-blue-600 text-white px-7 py-2.5 rounded-xl shadow-lg hover:bg-blue-700 transition font-semibold text-base flex items-center gap-2"
+  (click)="showModal = true"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="h-5 w-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M12 4v16m8-8H4"
+    />
+  </svg>
+  Add Expense
+</button>
+
+<!-- Modal -->
+<div
+  *ngIf="showModal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+>
+  <div
+    class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg relative border border-blue-100 animate-fade-in"
+  >
+    <button
+      (click)="showModal = false"
+      class="absolute top-4 right-4 text-gray-400 hover:text-blue-600 transition"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-7 w-7"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+    </button>
+    <h3
+      class="text-2xl font-extrabold mb-6 text-blue-700 text-center tracking-tight"
+    >
+      Add Expense
+    </h3>
+    <form
+      (ngSubmit)="addExpense()"
+      #expenseForm="ngForm"
+      class="flex flex-col gap-5"
+    >
+      <div class="flex flex-col gap-4 md:flex-row md:gap-4">
+        <input
+          type="number"
+          [(ngModel)]="amount"
+          name="amount"
+          required
+          placeholder="Amount"
+          min="0"
+          class="md:flex-1 rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 placeholder:text-blue-300"
+        />
+        <div class="md:flex-1">
+          <select
+            [(ngModel)]="category"
+            name="category"
+            required
+            class="w-full rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 text-gray-700"
+          >
+            <option value="" disabled>Select Category</option>
+            <option value="grocery">Grocery</option>
+            <option value="transport">Transport</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="utilities">Utilities</option>
+            <option value="health">Health</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <textarea
+        [(ngModel)]="description"
+        name="description"
+        required
+        placeholder="Description"
+        rows="2"
+        class="rounded-xl border border-blue-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg bg-blue-50 placeholder:text-blue-300 resize-none"
+      ></textarea>
+      <button
+        type="submit"
+        [disabled]="expenseForm.invalid"
+        class="mt-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold shadow hover:bg-blue-700 transition text-lg tracking-wide"
+      >
+        Add Expense
+      </button>
+    </form>
+  </div>
+</div>

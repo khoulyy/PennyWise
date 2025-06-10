@@ -1,0 +1,14 @@
+<div
+  class="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl shadow p-7 flex flex-col items-center border border-green-200"
+>
+  <span class="text-gray-500 text-base">Current Balance</span>
+  <span class="text-3xl font-extrabold text-green-600 mt-3">
+    <ng-container *ngIf="balance$ | async as balance; else loading">
+      <ng-container *ngIf="balance !== null; else noBalance">
+        ${{ balance | number : "1.2-2" }}
+      </ng-container>
+    </ng-container>
+    <ng-template #loading>Loading...</ng-template>
+    <ng-template #noBalance>Not available</ng-template>
+  </span>
+</div>

@@ -38,5 +38,12 @@
     >
       Login
     </button>
+    <div *ngIf="errorMessage" class="mt-4 text-center">
+      <span
+        class="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-lg shadow-sm animate-shake"
+      >
+        {{ errorMessage }}
+      </span>
+    </div>
   </form>
 </div>

@@ -1,0 +1,4 @@
+/* Add margin to the top for the logout button */
+.flex.justify-end.mb-4 {
+  margin-bottom: 1rem;
+}
