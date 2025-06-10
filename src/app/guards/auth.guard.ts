@@ -9,7 +9,7 @@ export const authGuard: CanActivateFn = (route, state) => {
       if (user) {
         resolve(true);
       } else {
-        window.location.href = '/login';
+        window.location.href = '';
         resolve(false);
       }
     });
