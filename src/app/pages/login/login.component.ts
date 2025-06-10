@@ -34,7 +34,7 @@ export class LoginComponent {
 
     try {
       await this.authService.login(this.email, this.password);
-      this.router.navigate(['/register']);
+      this.router.navigate(['/home']);
     } catch (error: any) {
       switch (error.code) {
         case 'auth/user-not-found':

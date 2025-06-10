@@ -40,7 +40,7 @@ export class RegisterComponent {
       ? null : { mismatch: true };
   }
 get navigateToLogin(): () => void {
-  return () => this.router.navigate(['/login']);
+  return () => this.router.navigate(['']);
 }
 
   // ✅ Submit handler
@@ -52,7 +52,7 @@ get navigateToLogin(): () => void {
       try {
         const { email, password, name, mobile } = this.signupForm.value;
         await this.authService.register(email, password, { uName: name, mobile });
-        this.router.navigate(['/login']);  // Redirect after success
+        this.router.navigate(['']);  // Redirect after success
       } catch (error: any) {
         console.error('Registration error:', error);
         if (error.code === 'auth/email-already-in-use') {

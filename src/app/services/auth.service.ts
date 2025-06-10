@@ -1,3 +1,4 @@
+import { BalanceComponent } from './../components/balance/balance.component';
 import { inject, Injectable } from '@angular/core';
 import {
   Auth,
@@ -24,7 +25,8 @@ async register(email: string, password: string, userData: { uName: string; mobil
     uId: userCredential.user.uid,
     email: userCredential.user.email ?? '',
     uName: userData.uName,
-    mobile: userData.mobile
+    mobile: userData.mobile,
+    balance: 0
   };
 
   const userDocRef = doc(this.firestore, `users/${newUser.uId}`);
