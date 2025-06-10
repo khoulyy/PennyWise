@@ -1,0 +1,80 @@
+<div class="relative min-h-screen overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-r from-purple-300 via-pink-400 to-indigo-500 bg-[length:400%_400%] animate-gradient-anim"></div>
+ <div class="absolute inset-0 overflow-hidden z-10">
+    <div class="absolute top-10 left-1/4 w-60 h-60 bg-blue-300 rounded-full opacity-20 animate-float-slow"></div>
+    <div class="absolute top-1/2 left-3/4 w-72 h-72 bg-pink-300 rounded-full opacity-20 animate-orbit-slow"></div>
+    <div class="absolute top-3/4 left-1/3 w-48 h-48 bg-purple-300 rounded-full opacity-20 animate-float-slow delay-3000"></div>
+  </div>
+  <div class="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-10">
+<h1 class="text-6xl font-gugi text-indigo-900 text-center">PENNYWISE</h1>
+      <h2 class="text-center text-xl font-medium text-gray-800 mb-6">Create your account</h2>
+<!-- // -->
+      <div *ngIf="errorMessage" class="rounded-md bg-red-50 border border-red-200 p-4 mb-4">
+        <p class="text-red-700 text-sm">{{ errorMessage }}</p>
+      </div>
+
+      <form [formGroup]="signupForm" (ngSubmit)="onRegister()" class="space-y-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Full Name</label>
+            <input formControlName="name" type="text" placeholder="John Doe" required
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500 transition"/>
+            <p *ngIf="signupForm.get('name')?.invalid && signupForm.get('name')?.touched"
+              class="text-red-500 text-xs mt-1">Name is required.</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Mobile</label>
+            <input formControlName="mobile" type="tel" placeholder="+1234567890" required
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500 transition"/>
+            <p *ngIf="signupForm.get('mobile')?.invalid && signupForm.get('mobile')?.touched"
+              class="text-red-500 text-xs mt-1">Mobile number is required.</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email Address</label>
+          <input formControlName="email" type="email" placeholder="you@example.com" required
+            class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500 transition"/>
+          <p *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched"
+            class="text-red-500 text-xs mt-1">Valid email is required.</p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <input formControlName="password" type="password" placeholder="••••••••" required
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500 transition"/>
+            <p *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched"
+              class="text-red-500 text-xs mt-1">Minimum 6 characters.</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <input formControlName="confirmPass" type="password" placeholder="••••••••" required
+              class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-indigo-500 focus:border-indigo-500 transition"/>
+            <p *ngIf="signupForm.hasError('mismatch')"
+              class="text-red-500 text-xs mt-1">Passwords must match.</p>
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="signupForm.invalid || loading"
+          class="w-full flex justify-center items-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md py-3 transition disabled:opacity-50">
+          <ng-container *ngIf="!loading">Sign Up</ng-container>
+          <ng-container *ngIf="loading">
+            <svg class="h-5 w-5 animate-spin mr-2 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            Creating account...
+          </ng-container>
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-600 mt-6">
+        Already have an account?
+        <button (click)="navigateToLogin()"
+          class="font-medium text-indigo-600 hover:text-indigo-800 underline">Log in</button>
+      </p>
+    </div>
+  </div>
+</div>
