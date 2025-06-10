@@ -3,4 +3,5 @@ export interface User {
   uName: string;
   uId: string;
   mobile: string;
+  balance: number;
 }
