@@ -23,7 +23,7 @@ Pennywise is a modern personal finance tracker built with Angular and Firebase. 
 
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
+   git clone git@github.com:khoulyy/pennywise.git
    cd pennywise
    ```
 2. Install dependencies:
