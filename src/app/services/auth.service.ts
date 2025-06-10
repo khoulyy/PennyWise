@@ -48,6 +48,7 @@ async register(email: string, password: string, userData: { uName: string; mobil
 async logout(): Promise<void> {
   try {
     await signOut(this.auth);
+    
   } catch (error) {
     console.error('Logout failed:', error);
     throw error;
