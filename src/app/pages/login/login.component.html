@@ -23,35 +23,46 @@
         </p>
       </div>
 <!-- // -->
-      <form (ngSubmit)="login()" class="space-y-5">
+      <form [formGroup]="loginForm" (ngSubmit)="login()" class="space-y-5">
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
           <input 
             id="email" 
-            name="email" 
+            formControlName="email"
             type="email" 
-            [(ngModel)]="email" 
             required
             placeholder="you@example.com"
             class="w-full rounded-xl border-2 border-pennywise-accent/30 px-4 py-2.5 focus:ring-2 focus:ring-pennywise-primary/30 focus:border-pennywise-primary transition-all duration-300 bg-white/50 backdrop-blur-sm hover:border-pennywise-accent/50"
+            [class.border-red-300]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
           />
+          <p *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500 text-xs mt-1">
+            <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required.</span>
+            <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email.</span>
+          </p>
         </div>
 
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
           <input 
             id="password" 
-            name="password" 
+            formControlName="password"
             type="password" 
-            [(ngModel)]="password" 
             required
             placeholder="••••••••"
             class="w-full rounded-xl border-2 border-pennywise-accent/30 px-4 py-2.5 focus:ring-2 focus:ring-pennywise-primary/30 focus:border-pennywise-primary transition-all duration-300 bg-white/50 backdrop-blur-sm hover:border-pennywise-accent/50"
+            [class.border-red-300]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
           />
+          <p *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500 text-xs mt-1">
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
+            <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</span>
+          </p>
         </div>
 
-        <button type="submit" [disabled]="loading"
-          class="w-full flex justify-center items-center bg-gradient-to-r from-pennywise-primary to-pennywise-secondary text-white font-medium rounded-xl py-2.5 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none">
+        <button 
+          type="submit" 
+          [disabled]="loginForm.invalid || loading"
+          class="w-full flex justify-center items-center bg-gradient-to-r from-pennywise-primary to-pennywise-secondary text-white font-medium rounded-xl py-2.5 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
+        >
           <ng-container *ngIf="!loading">Log In</ng-container>
           <ng-container *ngIf="loading">
             <svg class="h-5 w-5 animate-spin mr-2 text-white" fill="none" viewBox="0 0 24 24">
