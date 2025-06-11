@@ -20,52 +20,68 @@ export class AddExpenseBtnComponent {
   description = '';
   date!: string; // holds yyyy-MM-dd value
 
-  categories = ['grocery', 'transport', 'entertainment', 'utilities', 'health', 'other'];
+  categories = [
+    'grocery',
+    'transport',
+    'entertainment',
+    'utilities',
+    'health',
+    'other',
+  ];
 
   private expenseService = inject(FirestoreExpenseService);
   private auth = inject(Auth);
-balanceError = false;
+  balanceError = false;
+  loading = false;
 
-async addExpense() {
-  this.balanceError = false;
+  async addExpense() {
+    this.balanceError = false;
+    this.loading = true;
 
-  if (!this.amount || !this.category || !this.description || !this.date) return;
+    if (!this.amount || !this.category || !this.description || !this.date) {
+      this.loading = false;
+      return;
+    }
 
-  const jsDate = new Date(this.date);
-  if (isNaN(jsDate.getTime())) {
-    console.error('❌ Invalid date format:', this.date);
-    return;
+    const jsDate = new Date(this.date);
+    if (isNaN(jsDate.getTime())) {
+      console.error('❌ Invalid date format:', this.date);
+      this.loading = false;
+      return;
+    }
+
+    const user = this.auth.currentUser;
+    if (!user) {
+      this.loading = false;
+      return;
+    }
+
+    const currentBalance = await this.expenseService.getTotalBalance(user.uid);
+    console.log('Current Balance:', currentBalance);
+    console.log('Requested Expense Amount:', this.amount);
+    if (currentBalance < this.amount) {
+      this.balanceError = true;
+      this.loading = false;
+      return;
+    }
+
+    // Save as negative amount
+    await this.expenseService.addExpense({
+      amount: Math.abs(this.amount), // ensure it's negative
+      category: this.category,
+      description: this.description,
+      date: jsDate,
+      uId: user.uid,
+    });
+    await this.expenseService.updateUserBalance(
+      user.uid,
+      -Math.abs(this.amount)
+    );
+
+    this.resetForm();
+    this.loading = false;
+    window.location.reload();
   }
-
-  const user = this.auth.currentUser;
-  if (!user) return;
-
-  const currentBalance = await this.expenseService.getTotalBalance(user.uid);
-console.log('Current Balance:', currentBalance);
-console.log('Requested Expense Amount:', this.amount);
-  if (currentBalance < this.amount) {
-    this.balanceError = true;
-    return;
-  }
-
-  // Save as negative amount
-  await this.expenseService.addExpense({
-    amount: Math.abs(this.amount), // ensure it's negative
-    category: this.category,
-    description: this.description,
-    date: jsDate,
-    uId: user.uid,
-  });
-  await this.expenseService.updateUserBalance(user.uid, -Math.abs(this.amount));
-
-
-  this.resetForm();
-  window.location.reload();
-
-}
-
-
-
 
   private resetForm() {
     this.showModal = false;
