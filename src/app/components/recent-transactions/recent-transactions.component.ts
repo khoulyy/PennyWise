@@ -1,66 +1,80 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Firestore, doc, updateDoc, deleteDoc, getDoc } from '@angular/fire/firestore';
-import { Expense } from '../../models/expense';
-import { Auth } from '@angular/fire/auth';
 import { RouterModule } from '@angular/router';
+import { Firestore, collection, query, where, limit, onSnapshot, Timestamp } from '@angular/fire/firestore';
+import { Auth, onAuthStateChanged, Unsubscribe } from '@angular/fire/auth';
+
+interface Transaction {
+  id: string;
+  description: string;
+  amount: number;
+  date: Date;
+  category?: string;
+}
+
+interface FirestoreTransaction {
+  id: string;
+  description: string;
+  amount: number;
+  date: Timestamp;
+  category?: string;
+  uId: string;
+}
 
 @Component({
   selector: 'app-recent-transactions',
   standalone: true,
-  imports: [CommonModule, FormsModule,RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './recent-transactions.component.html',
-  styleUrl: './recent-transactions.component.css',
+  styleUrls: ['./recent-transactions.component.css']
 })
-export class RecentTransactionsComponent {
-  @Input() transactions: { docId: string, data: Expense }[] = [];
-  @Output() dataChanged = new EventEmitter<void>();
+export class RecentTransactionsComponent implements OnInit, OnDestroy {
+  private firestore = inject(Firestore);
+  private auth = inject(Auth);
+  private unsubscribeAuth: Unsubscribe | undefined;
+  private unsubscribeSnapshot: Unsubscribe | undefined;
 
-  selectedDocId: string | null = null;
-  editDescription = '';
-  editAmount = 0;
+  transactions: Transaction[] = [];
 
-  constructor(private firestore: Firestore, private auth: Auth) {}
+  ngOnInit() {
+    this.unsubscribeAuth = onAuthStateChanged(this.auth, (user) => {
+      if (user) {
+        const expensesRef = collection(this.firestore, 'expenses');
+        const q = query(
+          expensesRef,
+          where('uId', '==', user.uid),
+          limit(20)
+        );
 
-  formatAmount(amount: number): string {
-    return `- $${Math.abs(amount).toFixed(2)}`;
-  }
-
-  edit(docId: string, expense: Expense) {
-    this.selectedDocId = docId;
-    this.editDescription = expense.description;
-    this.editAmount = expense.amount;
-  }
-
-  cancelEdit() {
-    this.selectedDocId = null;
-  }
-
-  async saveEdit(docId: string) {
-    const docRef = doc(this.firestore, 'expenses', docId);
-    await updateDoc(docRef, {
-      description: this.editDescription,
-      amount: this.editAmount,
+        this.unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+          this.transactions = snapshot.docs
+            .map(doc => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                description: data['description'],
+                amount: data['amount'],
+                date: data['date']?.toDate() ?? new Date(),
+                category: data['category']
+              };
+            })
+            .sort((a, b) => b.date.getTime() - a.date.getTime())
+            .slice(0, 3);
+        }, (error) => {
+          console.error('Error fetching transactions:', error);
+        });
+      } else {
+        this.transactions = [];
+      }
     });
-    this.selectedDocId = null;
-    this.dataChanged.emit(); // notify HomeComponent to reload
   }
 
-  async deleteExpense(docId: string, amount: number) {
-    const docRef = doc(this.firestore, 'expenses', docId);
-    await deleteDoc(docRef);
-
-    // restore balance
-    const user = this.auth.currentUser;
-    if (user) {
-      const userRef = doc(this.firestore, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-      const userData: any = userSnap.data();
-const newBalance = (userData?.balance || 0) + amount;
-await updateDoc(userRef, { balance: newBalance });
+  ngOnDestroy() {
+    if (this.unsubscribeAuth) {
+      this.unsubscribeAuth();
     }
-
-    this.dataChanged.emit(); // notify HomeComponent to reload
+    if (this.unsubscribeSnapshot) {
+      this.unsubscribeSnapshot();
+    }
   }
 }

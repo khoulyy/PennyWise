@@ -1,56 +1,114 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { Expense } from '../../models/expense';
 import { ExpenseService } from '../../services/expense.service.ts.service';
-import { Firestore, doc, updateDoc, deleteDoc, getDoc } from '@angular/fire/firestore';
-import { Auth } from '@angular/fire/auth';
+import { Firestore, doc, updateDoc, deleteDoc, getDoc, Timestamp, onSnapshot, collection, query, where, orderBy } from '@angular/fire/firestore';
+import { Auth, onAuthStateChanged, Unsubscribe } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-all-transactions',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, SidebarComponent],
   templateUrl: './all-transactions.component.html',
   styleUrl: './all-transactions.component.css',
 })
-export class AllTransactionsComponent implements OnInit {
+export class AllTransactionsComponent implements OnInit, OnDestroy {
+  private firestore = inject(Firestore);
+  private auth = inject(Auth);
+  private unsubscribeAuth: Unsubscribe | undefined;
+  private unsubscribeTransactions: Unsubscribe | undefined;
+  private unsubscribeUser: Unsubscribe | undefined;
+
   transactions: { docId: string; data: Expense }[] = [];
   currentPage = 1;
   itemsPerPage = 10;
-  totalSpent = 0;
-  balance = 0;
+  totalSpent: number | undefined;
+  balance: number | undefined;
 
   selectedDocId: string | null = null;
   editDescription = '';
   editAmount = 0;
+  originalAmount = 0;
 
-  constructor(
-    private expenseService: ExpenseService,
-    private firestore: Firestore,
-    private auth: Auth
-  ) {}
+  constructor(private expenseService: ExpenseService) {}
 
-  async ngOnInit() {
-    await this.loadData();
+  ngOnInit() {
+    console.log('Component initialized');
+    this.unsubscribeAuth = onAuthStateChanged(this.auth, (user) => {
+      console.log('Auth state changed:', user?.uid);
+      if (user) {
+        this.setupTransactionsListener(user.uid);
+        this.setupUserListener(user.uid);
+      } else {
+        console.log('No user logged in');
+        this.transactions = [];
+        this.balance = undefined;
+        this.totalSpent = undefined;
+      }
+    });
   }
 
-  async loadData() {
-    const user = this.auth.currentUser;
-    if (!user) return;
+  private setupTransactionsListener(userId: string) {
+    console.log('Setting up transactions listener for user:', userId);
+    const expensesRef = collection(this.firestore, 'expenses');
+    const q = query(
+      expensesRef,
+      where('uId', '==', userId)
+    );
 
-    // Load expenses
-    this.transactions = await this.expenseService.getExpensesForUser();
+    this.unsubscribeTransactions = onSnapshot(q, (snapshot) => {
+      console.log('Received transactions snapshot:', snapshot.docs.length, 'documents');
+      this.transactions = snapshot.docs.map(doc => {
+        const data = doc.data();
+        console.log('Transaction data:', { id: doc.id, ...data });
+        return {
+          docId: doc.id,
+          data: {
+            ...data as Expense,
+            date: data['date']
+          }
+        };
+      }).sort((a, b) => {
+        // Sort in memory by date in descending order
+        const dateA = this.getDateFromTimestamp(a.data.date);
+        const dateB = this.getDateFromTimestamp(b.data.date);
+        return dateB.getTime() - dateA.getTime();
+      });
 
-    // Load balance
-    const userRef = doc(this.firestore, 'users', user.uid);
-    const userSnap = await getDoc(userRef);
-    const userData = userSnap.data();
-    this.balance = (userData && 'balance' in userData) ? (userData as any).balance : 0;
+      // Calculate total spent
+      this.totalSpent = this.transactions.reduce((sum, tx) => sum + Math.abs(tx.data.amount), 0);
+      console.log('Updated transactions array:', this.transactions);
+      console.log('Total spent:', this.totalSpent);
+    }, (error) => {
+      console.error('Error fetching transactions:', error);
+    });
+  }
 
+  private setupUserListener(userId: string) {
+    const userRef = doc(this.firestore, 'users', userId);
+    this.unsubscribeUser = onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        this.balance = data['balance'] || 0;
+      }
+    }, (error) => {
+      console.error('Error fetching user data:', error);
+    });
+  }
 
-    // Calculate total spent
-    this.totalSpent = this.transactions.reduce((sum, tx) => sum + Math.abs(tx.data.amount), 0);
+  ngOnDestroy() {
+    if (this.unsubscribeAuth) {
+      this.unsubscribeAuth();
+    }
+    if (this.unsubscribeTransactions) {
+      this.unsubscribeTransactions();
+    }
+    if (this.unsubscribeUser) {
+      this.unsubscribeUser();
+    }
   }
 
   get paginatedTransactions() {
@@ -70,10 +128,21 @@ export class AllTransactionsComponent implements OnInit {
     return `- $${Math.abs(amount).toFixed(2)}`;
   }
 
+  getDateFromTimestamp(timestamp: Timestamp | Date | string): Date {
+    if (timestamp instanceof Timestamp) {
+      return timestamp.toDate();
+    }
+    if (timestamp instanceof Date) {
+      return timestamp;
+    }
+    return new Date(timestamp);
+  }
+
   edit(tx: { docId: string; data: Expense }) {
     this.selectedDocId = tx.docId;
     this.editDescription = tx.data.description;
     this.editAmount = tx.data.amount;
+    this.originalAmount = tx.data.amount;
   }
 
   cancelEdit() {
@@ -82,12 +151,12 @@ export class AllTransactionsComponent implements OnInit {
 
   async saveEdit(docId: string) {
     const user = this.auth.currentUser;
-    if (!user) return;
+    if (!user || this.balance === undefined) return;
 
     const oldTx = this.transactions.find(t => t.docId === docId);
     if (!oldTx) return;
 
-    const difference = this.editAmount - oldTx.data.amount;
+    const difference = this.editAmount - this.originalAmount;
 
     // Update the expense
     const docRef = doc(this.firestore, 'expenses', docId);
@@ -103,12 +172,11 @@ export class AllTransactionsComponent implements OnInit {
     });
 
     this.selectedDocId = null;
-    await this.loadData();
   }
 
   async deleteExpense(docId: string, amount: number) {
     const user = this.auth.currentUser;
-    if (!user) return;
+    if (!user || this.balance === undefined) return;
 
     // Delete expense
     await deleteDoc(doc(this.firestore, 'expenses', docId));
@@ -119,6 +187,6 @@ export class AllTransactionsComponent implements OnInit {
       balance: this.balance + amount
     });
 
-    await this.loadData();
+    this.selectedDocId = null;
   }
 }

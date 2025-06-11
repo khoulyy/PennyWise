@@ -1,0 +1,42 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Smooth transitions for form elements */
+input:focus {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect for the profile avatar */
+.h-24.w-24 {
+  transition: transform 0.2s ease-in-out;
+}
+
+.h-24.w-24:hover {
+  transform: scale(1.05);
+}
+
+/* Button hover effect */
+button[type="submit"] {
+  transition: all 0.2s ease-in-out;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+button[type="submit"]:active {
+  transform: translateY(0);
+}

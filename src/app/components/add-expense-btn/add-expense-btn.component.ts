@@ -1,20 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FirestoreExpenseService } from '../../services/firestore-expense.service';
-import { inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Timestamp } from 'firebase/firestore';
+import { ModalService } from '../../services/modal.service';
 
 @Component({
   selector: 'app-add-expense-btn',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './add-expense-btn.component.html',
-  styleUrl: './add-expense-btn.component.css',
+  template: `
+    <button
+      class="bg-pennywise-primary text-white px-7 py-2.5 rounded-xl shadow-lg hover:bg-pennywise-secondary transition font-semibold text-base flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-pennywise-accent"
+      (click)="modalService.openModal()"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4v16m8-8H4"
+        />
+      </svg>
+      Add Expense
+    </button>
+  `,
+  styles: [`
+    :host {
+      display: inline-block;
+    }
+  `]
 })
 export class AddExpenseBtnComponent {
-  showModal = false;
+  modalService = inject(ModalService);
   amount: number | null = null;
   category = '';
   description = '';
@@ -67,7 +92,7 @@ export class AddExpenseBtnComponent {
 
     // Save as negative amount
     await this.expenseService.addExpense({
-      amount: Math.abs(this.amount), // ensure it's negative
+      amount: -Math.abs(this.amount), // ensure it's negative
       category: this.category,
       description: this.description,
       date: jsDate,
@@ -84,7 +109,6 @@ export class AddExpenseBtnComponent {
   }
 
   private resetForm() {
-    this.showModal = false;
     this.amount = null;
     this.category = '';
     this.description = '';

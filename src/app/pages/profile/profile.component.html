@@ -1,0 +1,125 @@
+<app-sidebar>
+  <div class="relative min-h-screen overflow-hidden">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-pennywise-primary/10 via-pennywise-secondary/10 to-pennywise-accent/10 bg-[length:400%_400%] animate-gradient-anim"></div>
+    <div class="absolute inset-0 overflow-hidden z-10">
+      <div class="absolute top-10 left-1/4 w-60 h-60 bg-pennywise-primary/5 rounded-full blur-2xl animate-float-slow"></div>
+      <div class="absolute top-1/2 left-3/4 w-72 h-72 bg-pennywise-secondary/5 rounded-full blur-2xl animate-orbit-slow"></div>
+      <div class="absolute top-3/4 left-1/3 w-48 h-48 bg-pennywise-accent/5 rounded-full blur-2xl animate-float-slow delay-3000"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative z-10 min-h-screen py-10 px-4 sm:px-6">
+      <div class="max-w-4xl mx-auto">
+        <!-- Profile Header -->
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-extrabold bg-gradient-to-r from-pennywise-primary to-pennywise-secondary bg-clip-text text-transparent mb-2">Profile</h1>
+          <p class="text-gray-600">Manage your account settings and preferences</p>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg border border-pennywise-accent/20 p-8 transform transition-all duration-300 hover:shadow-xl">
+          <!-- Success/Error Messages -->
+          <div *ngIf="successMessage" class="mb-4 p-4 bg-green-100 text-green-700 rounded-xl">
+            {{ successMessage }}
+          </div>
+          <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 text-red-700 rounded-xl">
+            {{ errorMessage }}
+          </div>
+
+          <!-- Profile Form -->
+          <form (ngSubmit)="saveProfile()" #profileForm="ngForm" class="space-y-6">
+            <!-- Name Field -->
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                [(ngModel)]="profile.name"
+                [disabled]="!isEditing"
+                class="w-full rounded-xl border border-pennywise-accent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pennywise-primary text-lg bg-pennywise-accent/20 disabled:bg-gray-100 disabled:text-gray-500"
+                placeholder="Your name"
+              >
+            </div>
+
+            <!-- Email Field (Read-only) -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                [(ngModel)]="profile.email"
+                disabled
+                class="w-full rounded-xl border border-pennywise-accent px-4 py-2 bg-gray-100 text-gray-500 cursor-not-allowed"
+              >
+            </div>
+
+            <!-- Balance Field (Editable) -->
+            <div>
+              <label for="balance" class="block text-sm font-medium text-gray-700 mb-1">Current Balance</label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  id="balance"
+                  name="balance"
+                  [(ngModel)]="profile.balance"
+                  [disabled]="!isEditing"
+                  class="w-full rounded-xl border border-pennywise-accent pl-8 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-pennywise-primary text-lg bg-pennywise-accent/20 disabled:bg-gray-100 disabled:text-gray-500"
+                  placeholder="0.00"
+                  step="0.01"
+                  min="0"
+                >
+              </div>
+              <p *ngIf="isEditing" class="mt-1 text-sm text-gray-500">
+                You can update your balance here. This will affect your total available funds.
+              </p>
+            </div>
+
+            <!-- Account Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-200">
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Account Created</h3>
+                <p class="text-gray-900">{{ formatDate(profile.createdAt) }}</p>
+              </div>
+              <div>
+                <h3 class="text-sm font-medium text-gray-500 mb-1">Last Login</h3>
+                <p class="text-gray-900">{{ formatDate(profile.lastLogin) }}</p>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+              <button
+                *ngIf="!isEditing"
+                type="button"
+                (click)="isEditing = true"
+                class="px-6 py-2.5 bg-pennywise-primary text-white rounded-xl font-bold shadow hover:bg-pennywise-secondary transition text-lg tracking-wide"
+              >
+                Edit Profile
+              </button>
+              <ng-container *ngIf="isEditing">
+                <button
+                  type="button"
+                  (click)="cancelEdit()"
+                  class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition text-lg tracking-wide"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="profileForm.invalid"
+                  class="px-6 py-2.5 bg-pennywise-primary text-white rounded-xl font-bold shadow hover:bg-pennywise-secondary transition text-lg tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Save Changes
+                </button>
+              </ng-container>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-sidebar>

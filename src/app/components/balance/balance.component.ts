@@ -1,22 +1,30 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FirestoreUserService } from '../../services/firestore-user.service';
-import { NgIf, AsyncPipe, DecimalPipe } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Firestore, doc, onSnapshot } from '@angular/fire/firestore';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-balance',
   standalone: true,
-  imports: [NgIf, AsyncPipe, DecimalPipe],
+  imports: [CommonModule],
   templateUrl: './balance.component.html',
-  styleUrl: './balance.component.css',
+  styleUrls: ['./balance.component.css']
 })
 export class BalanceComponent implements OnInit {
-  balance$: Observable<number | null>;
-  private firestoreUserService = inject(FirestoreUserService);
+  private firestore = inject(Firestore);
+  private auth = inject(Auth);
+  
+  balance: number = 0;
 
-  constructor() {
-    this.balance$ = this.firestoreUserService.getUserBalance$();
+  ngOnInit() {
+    const user = this.auth.currentUser;
+    if (!user) return;
+
+    const userDoc = doc(this.firestore, 'users', user.uid);
+    onSnapshot(userDoc, (doc) => {
+      if (doc.exists()) {
+        this.balance = doc.data()['balance'] ?? 0;
+      }
+    });
   }
-
-  ngOnInit() {}
 }

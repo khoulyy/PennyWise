@@ -1,14 +1,14 @@
-<div
-  class="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl shadow p-7 flex flex-col items-center border border-green-200"
->
-  <span class="text-gray-500 text-base">Current Balance</span>
-  <span class="text-3xl font-extrabold text-green-600 mt-3">
-    <ng-container *ngIf="balance$ | async as balance; else loading">
-      <ng-container *ngIf="balance !== null; else noBalance">
-        ${{ balance | number : "1.2-2" }}
-      </ng-container>
-    </ng-container>
-    <ng-template #loading>Loading...</ng-template>
-    <ng-template #noBalance>Not available</ng-template>
-  </span>
+<div class="flex flex-col">
+  <div class="flex items-center gap-3 mb-2">
+    <div class="w-10 h-10 rounded-xl bg-pennywise-accent/30 flex items-center justify-center group-hover:bg-pennywise-accent/40 transition-colors">
+      <svg class="w-5 h-5 text-pennywise-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-gray-700">Current Balance</h3>
+  </div>
+  <div class="mt-2">
+    <span class="text-3xl font-bold text-pennywise-primary">${{ balance }}</span>
+    <p class="text-sm text-gray-500 mt-1">Available funds</p>
+  </div>
 </div>

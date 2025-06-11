@@ -1,0 +1,50 @@
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse > div > div > div {
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 25%,
+    rgba(59, 130, 246, 0.2) 37%,
+    rgba(59, 130, 246, 0.1) 63%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Ensure smooth transition between skeleton and actual content */
+.transactions-list {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Add a subtle gradient to the skeleton items */
+.animate-pulse > div > div > div {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-pulse > div > div > div::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}

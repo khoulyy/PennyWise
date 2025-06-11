@@ -5,8 +5,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  UserCredential
+  UserCredential,
+  User,
+  onAuthStateChanged
 } from '@angular/fire/auth';
+import { Observable, from } from 'rxjs';
 
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
 import { User as AppUser } from '../models/user'; // ✅ Avoid name clash
@@ -18,41 +21,47 @@ export class AuthService {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
 
-async register(email: string, password: string, userData: { uName: string; mobile: string }): Promise<UserCredential> {
-  const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+  get user$(): Observable<User | null> {
+    return from(new Promise<User | null>(resolve => {
+      const unsubscribe = onAuthStateChanged(this.auth, user => {
+        unsubscribe();
+        resolve(user);
+      });
+    }));
+  }
 
-  const newUser: AppUser = {
-    uId: userCredential.user.uid,
-    email: userCredential.user.email ?? '',
-    uName: userData.uName,
-    mobile: userData.mobile,
-    balance: 0
-  };
+  async register(email: string, password: string, userData: { uName: string; mobile: string }): Promise<UserCredential> {
+    const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
 
-  const userDocRef = doc(this.firestore, `users/${newUser.uId}`);
-  await setDoc(userDocRef, newUser);
+    const newUser: AppUser = {
+      uId: userCredential.user.uid,
+      email: userCredential.user.email ?? '',
+      uName: userData.uName,
+      mobile: userData.mobile,
+      balance: 0
+    };
 
-  return userCredential;
-}
+    const userDocRef = doc(this.firestore, `users/${newUser.uId}`);
+    await setDoc(userDocRef, newUser);
 
+    return userCredential;
+  }
 
   async login(email: string, password: string): Promise<UserCredential> {
-  try {
-    return await signInWithEmailAndPassword(this.auth, email, password);
-  } catch (error) {
-    console.error('Login failed:', error);
-    throw error;
+    try {
+      return await signInWithEmailAndPassword(this.auth, email, password);
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
   }
-}
 
-async logout(): Promise<void> {
-  try {
-    await signOut(this.auth);
-    
-  } catch (error) {
-    console.error('Logout failed:', error);
-    throw error;
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.auth);
+    } catch (error) {
+      console.error('Logout failed:', error);
+      throw error;
+    }
   }
-}
-
 }
