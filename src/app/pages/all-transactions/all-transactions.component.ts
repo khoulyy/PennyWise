@@ -168,7 +168,8 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     // Update balance
     const userRef = doc(this.firestore, 'users', user.uid);
     await updateDoc(userRef, {
-      balance: this.balance - difference
+      //update helmy
+      balance: this.balance + difference
     });
 
     this.selectedDocId = null;
@@ -184,8 +185,9 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     // Add amount back to balance
     const userRef = doc(this.firestore, 'users', user.uid);
     await updateDoc(userRef, {
-      balance: this.balance + amount
-    });
+  balance: this.balance + Math.abs(amount)
+});
+
 
     this.selectedDocId = null;
   }
