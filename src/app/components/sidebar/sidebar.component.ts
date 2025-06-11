@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Auth, onAuthStateChanged, User } from '@angular/fire/auth';
+import { Auth, onAuthStateChanged, User, Unsubscribe } from '@angular/fire/auth';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
@@ -12,25 +12,72 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   collapsed = false;
   isLoggedIn = false;
   userInitial = '';
   userName = '';
   userEmail = '';
+  mobileMenuOpen = false;
+  isMobile = false;
+  private authUnsubscribe: Unsubscribe | undefined;
 
   constructor(
     private router: Router,
     private auth: Auth,
     private firestore: Firestore
   ) {
+    this.initializeSidebarState();
+  }
+
+  private initializeSidebarState() {
     // Load collapsed state from localStorage
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    this.collapsed = savedState === 'true';
+    try {
+      const savedState = localStorage.getItem('sidebarCollapsed');
+      this.collapsed = savedState === 'true';
+    } catch (error) {
+      console.error('Error loading sidebar state:', error);
+      this.collapsed = false;
+    }
+    
+    // Check initial screen size
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize() {
+    const wasMobile = this.isMobile;
+    this.isMobile = window.innerWidth < 1024; // lg breakpoint
+    
+    // Handle state changes when switching between mobile and desktop
+    if (wasMobile !== this.isMobile) {
+      if (this.isMobile) {
+        // Switching to mobile: close mobile menu and reset collapse state
+        this.mobileMenuOpen = false;
+        this.collapsed = false;
+      } else {
+        // Switching to desktop: restore collapse state from localStorage
+        try {
+          const savedState = localStorage.getItem('sidebarCollapsed');
+          this.collapsed = savedState === 'true';
+        } catch (error) {
+          console.error('Error restoring sidebar state:', error);
+          this.collapsed = false;
+        }
+      }
+    }
+  }
+
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
   ngOnInit() {
-    onAuthStateChanged(this.auth, async (user) => {
+    this.authUnsubscribe = onAuthStateChanged(this.auth, async (user) => {
       this.isLoggedIn = !!user;
       if (user) {
         this.userEmail = user.email || '';
@@ -55,10 +102,22 @@ export class SidebarComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+    }
+  }
+
   toggleSidebar() {
-    this.collapsed = !this.collapsed;
-    // Save collapsed state to localStorage
-    localStorage.setItem('sidebarCollapsed', this.collapsed.toString());
+    if (!this.isMobile) {
+      this.collapsed = !this.collapsed;
+      // Save collapsed state to localStorage
+      try {
+        localStorage.setItem('sidebarCollapsed', this.collapsed.toString());
+      } catch (error) {
+        console.error('Error saving sidebar state:', error);
+      }
+    }
   }
 
   logout() {

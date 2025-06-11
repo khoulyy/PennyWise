@@ -1,20 +1,22 @@
-<div class="flex items-center justify-between mb-6">
-  <h2 class="text-2xl font-bold text-indigo-800 tracking-tight">Weekly Expenses</h2>
-  <span class="inline-block px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">This Week</span>
-</div>
+<div class="p-4 sm:p-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-indigo-800 tracking-tight">Weekly Expenses</h2>
+    <span class="inline-block px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full w-fit">This Week</span>
+  </div>
 
-<div class="relative w-full h-80 flex items-center justify-center">
-  <canvas
-    baseChart
-    [data]="barChartData"
-    [options]="barChartOptions"
-    [type]="barChartType"
-    class="w-full h-full"
-  >
-  </canvas>
-</div>
+  <div class="relative w-full h-60 sm:h-80 flex items-center justify-center bg-white/50 rounded-xl p-4">
+    <canvas
+      baseChart
+      [data]="barChartData"
+      [options]="barChartOptions"
+      [type]="barChartType"
+      class="w-full h-full"
+    >
+    </canvas>
+  </div>
 
-<div class="flex justify-between mt-6 text-sm text-gray-600">
-  <span>Lowest</span>
-  <span>Highest</span>
+  <div class="flex justify-between mt-4 text-xs sm:text-sm text-gray-600 px-2">
+    <span>Lowest</span>
+    <span>Highest</span>
+  </div>
 </div>
