@@ -28,4 +28,12 @@ export const routes: Routes = [
         (m) => m.AllTransactionsComponent
       ),
   },
+  {
+    path: '**',
+    title: 'Not Found',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component').then(
+        (m) => m.NotFoundComponent
+      ),
+  },
 ];
