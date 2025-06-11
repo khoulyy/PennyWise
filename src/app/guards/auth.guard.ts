@@ -7,10 +7,21 @@ export const authGuard: CanActivateFn = (route, state) => {
   return new Promise<boolean>((resolve) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        resolve(true);
+        // If already authenticated and trying to access login (''), redirect to /home
+        if (state.url === '' || state.url === '/') {
+          window.location.href = '/home';
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       } else {
-        window.location.href = '';
-        resolve(false);
+        // Not authenticated, allow access to login
+        if (state.url === '/home') {
+          window.location.href = '';
+          resolve(false);
+        } else {
+          resolve(true);
+        }
       }
     });
   });

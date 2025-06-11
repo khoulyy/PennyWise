@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 
-import {RegisterComponent} from './pages/register/register.component';
+import { RegisterComponent } from './pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 import { authGuard } from './guards/auth.guard';
 import { AllTransactionsComponent } from './pages/all-transactions/all-transactions.component';
@@ -12,6 +12,7 @@ export const routes: Routes = [
     path: '',
     title: 'Login',
     component: LoginComponent,
+    canActivate: [authGuard], // <--- Add guard here
   },
   {
     path: 'home',
@@ -19,10 +20,12 @@ export const routes: Routes = [
     component: HomeComponent,
     canActivate: [authGuard],
   },
-   {path:'register' , component:RegisterComponent},
-   {
-  path: 'all-transactions',
-  loadComponent: () => import('./pages/all-transactions/all-transactions.component').then(m => m.AllTransactionsComponent)
-}
-
+  { path: 'register', component: RegisterComponent },
+  {
+    path: 'all-transactions',
+    loadComponent: () =>
+      import('./pages/all-transactions/all-transactions.component').then(
+        (m) => m.AllTransactionsComponent
+      ),
+  },
 ];
