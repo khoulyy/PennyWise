@@ -2,9 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../services/modal.service';
-import { Firestore, doc, updateDoc, arrayUnion, Timestamp, increment } from '@angular/fire/firestore';
+import { Firestore, doc, updateDoc, collection, addDoc, Timestamp, increment } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { FirestoreExpenseService } from '../../services/firestore-expense.service';
 
 @Component({
   selector: 'app-expense-modal',
@@ -124,6 +125,7 @@ export class ExpenseModalComponent implements OnInit {
   private firestore = inject(Firestore);
   private auth = inject(Auth);
   private router = inject(Router);
+  private expenseService = inject(FirestoreExpenseService);
 
   amount: number | null = null;
   category = '';
@@ -160,26 +162,31 @@ export class ExpenseModalComponent implements OnInit {
     }
 
     try {
-      const userDoc = doc(this.firestore, 'users', user.uid);
+      // Check if user has enough balance
+      const currentBalance = await this.expenseService.getTotalBalance(user.uid);
+      if (currentBalance < this.amount) {
+        this.balanceError = true;
+        this.loading = false;
+        return;
+      }
+
       const expenseAmount = -Math.abs(this.amount);
 
-      // Create a new transaction
-      const transaction = {
-        id: crypto.randomUUID(),
+      // Add expense to expenses collection
+      await this.expenseService.addExpense({
         amount: expenseAmount,
         category: this.category,
         description: this.description,
-        date: Timestamp.fromDate(jsDate),
-      };
-
-      // Update user document with new transaction and balance
-      await updateDoc(userDoc, {
-        transactions: arrayUnion(transaction),
-        balance: increment(expenseAmount),
-        lastUpdated: Timestamp.now()
+        date: jsDate,
+        uId: user.uid
       });
 
+      // Update user's balance
+      await this.expenseService.updateUserBalance(user.uid, expenseAmount);
+
       this.resetForm();
+      this.modalService.closeModal();
+      
       // Navigate to the current route to trigger a refresh
       const currentUrl = this.router.url;
       this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
@@ -193,10 +200,10 @@ export class ExpenseModalComponent implements OnInit {
   }
 
   private resetForm() {
-    this.modalService.closeModal();
     this.amount = null;
     this.category = '';
     this.description = '';
     this.date = new Date().toISOString().split('T')[0];
+    this.balanceError = false;
   }
 } 
