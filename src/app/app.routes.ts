@@ -5,6 +5,7 @@ import { LoginComponent } from './pages/login/login.component';
 import {RegisterComponent} from './pages/register/register.component';
 import { HomeComponent } from './pages/home/home.component';
 import { authGuard } from './guards/auth.guard';
+import { AllTransactionsComponent } from './pages/all-transactions/all-transactions.component';
 
 export const routes: Routes = [
   {
@@ -19,4 +20,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
    {path:'register' , component:RegisterComponent},
+   {
+  path: 'all-transactions',
+  loadComponent: () => import('./pages/all-transactions/all-transactions.component').then(m => m.AllTransactionsComponent)
+}
+
 ];

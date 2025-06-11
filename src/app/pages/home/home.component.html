@@ -50,7 +50,7 @@ ${{ thisMonthExpenses }}
       </div>
 
       <!-- Recent Transactions -->
-      <div class="bg-white rounded-2xl shadow-xl p-8 border border-indigo-100">
+      <!-- <div class="bg-white rounded-2xl shadow-xl p-8 border border-indigo-100">
         <h2 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18" />
@@ -74,6 +74,15 @@ ${{ thisMonthExpenses }}
         <div class="mt-6 text-right">
           <a href="#" class="text-blue-600 hover:underline font-semibold">View all</a>
         </div>
+      </div> -->
+
+      <div>
+<app-recent-transactions
+  [transactions]="recentTransactions"
+  (dataChanged)="loadTransactions()">
+</app-recent-transactions>
+
+
       </div>
     </div>
   </div>

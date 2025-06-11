@@ -1,0 +1,69 @@
+<div class="bg-white bg-opacity-90 rounded-2xl shadow-xl p-8 border border-indigo-100">
+  <h2 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 6h18M3 14h18M3 18h18" />
+    </svg>
+    Recent Transactions
+  </h2>
+
+  <div class="divide-y divide-indigo-100">
+    <div *ngFor="let tx of transactions" class="py-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <div class="font-medium text-gray-800">{{ tx.data.description }}</div>
+          <div class="text-sm text-gray-500">{{ tx.data.category }}</div>
+          <div
+  class="font-semibold"
+  [ngClass]="{
+    'text-red-500': tx.data.amount !== 0,
+    'text-gray-400': tx.data.amount === 0
+  }"
+>
+  {{ formatAmount(tx.data.amount) }}
+</div>
+
+        </div>
+
+        <button
+          class="text-sm text-blue-600 hover:underline"
+          (click)="edit(tx.docId, tx.data)"
+        >
+          Edit
+        </button>
+      </div>
+
+      <!-- Edit Form -->
+      <div *ngIf="selectedDocId === tx.docId" class="mt-4 space-y-2">
+        <input
+          type="text"
+          [(ngModel)]="editDescription"
+          placeholder="Description"
+          class="border rounded px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+        />
+        <input
+          type="number"
+          [(ngModel)]="editAmount"
+          placeholder="Amount"
+          class="border rounded px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+        />
+       <div class="flex gap-3 mt-2">
+  <button class="bg-green-500 text-white px-4 py-1 rounded" (click)="saveEdit(tx.docId)">Save</button>
+  <button class="bg-gray-400 text-white px-4 py-1 rounded" (click)="cancelEdit()">Cancel</button>
+  <button class="bg-red-500 text-white px-4 py-1 rounded" (click)="deleteExpense(tx.docId, tx.data.amount)">Delete</button>
+</div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 text-right">
+<a
+  [routerLink]="['/all-transactions']"
+  class="text-blue-600 hover:underline font-semibold"
+>
+  View all
+</a>
+
+
+  </div>
+</div>

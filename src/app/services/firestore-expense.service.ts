@@ -2,13 +2,14 @@ import { BalanceComponent } from './../components/balance/balance.component';
 import { inject, Injectable } from '@angular/core';
 import { Firestore, collection, addDoc, query, where, getDocs } from '@angular/fire/firestore';
 import { Expense } from '../models/expense';
-import { doc, getDoc, updateDoc } from '@angular/fire/firestore';
+import { doc, getDoc, updateDoc ,setDoc } from '@angular/fire/firestore';
 
 
 @Injectable({
   providedIn: 'root',
 })
 export class FirestoreExpenseService {
+ 
   private firestore = inject(Firestore);
 
   constructor() {}

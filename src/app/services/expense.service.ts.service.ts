@@ -7,19 +7,21 @@ import { Expense } from '../models/expense';
 export class ExpenseService {
   constructor(private firestore: Firestore, private auth: Auth) {}
 
-  async getExpensesForUser(): Promise<Expense[]> {
-    const user = this.auth.currentUser;
-    if (!user) return [];
-    console.log(user.uid);
+async getExpensesForUser(): Promise<{ docId: string, data: Expense }[]> {
+  const user = this.auth.currentUser;
+  if (!user) return [];
 
-    const expenseQuery = query(
-      collection(this.firestore, 'expenses'),
-      where('uId', '==', user.uid)
-    );
+  const expenseQuery = query(
+    collection(this.firestore, 'expenses'),
+    where('uId', '==', user.uid)
+  );
 
-    const snapshot = await getDocs(expenseQuery);
-console.log(snapshot.docs.map(doc => doc.data()));
+  const snapshot = await getDocs(expenseQuery);
 
-    return snapshot.docs.map(doc => doc.data() as Expense);
-  }
+  return snapshot.docs.map(doc => ({
+    docId: doc.id,       // 🔁 Firestore document ID
+    data: doc.data() as Expense
+  }));
+}
+
 }
