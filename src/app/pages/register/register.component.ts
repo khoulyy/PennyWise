@@ -26,11 +26,11 @@ export class RegisterComponent {
   ) {
     // Initialize the form once
     this.signupForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPass: ['', Validators.required],
-      mobile: ['', Validators.required]
+      mobile: ['', [Validators.required, Validators.pattern('^[+]?[0-9]{10,15}$')]]
     }, { validators: this.passwordMatchValidator });  // ✅ Use 'validators' array
   }
 
@@ -39,9 +39,10 @@ export class RegisterComponent {
     return form.get('password')?.value === form.get('confirmPass')?.value
       ? null : { mismatch: true };
   }
-get navigateToLogin(): () => void {
-  return () => this.router.navigate(['']);
-}
+
+  get navigateToLogin(): () => void {
+    return () => this.router.navigate(['']);
+  }
 
   // ✅ Submit handler
   async onRegister() {
@@ -51,8 +52,11 @@ get navigateToLogin(): () => void {
 
       try {
         const { email, password, name, mobile } = this.signupForm.value;
-        await this.authService.register(email, password, { uName: name, mobile });
-        this.router.navigate(['']);  // Redirect after success
+
+        console.log('RegisterComponent: Form data before sending:', { name, email, mobile });
+
+        await this.authService.register(email, password, { name: name.trim(), mobile: mobile.trim() });
+        this.router.navigate(['/home']);  // Redirect to home after success
       } catch (error: any) {
         console.error('Registration error:', error);
         if (error.code === 'auth/email-already-in-use') {
@@ -65,6 +69,14 @@ get navigateToLogin(): () => void {
       } finally {
         this.loading = false;
       }
+    } else {
+      console.log('RegisterComponent: Form is invalid. Errors:', this.signupForm.errors);
+      Object.keys(this.signupForm.controls).forEach(key => {
+        const controlErrors = this.signupForm.get(key)?.errors;
+        if (controlErrors) {
+          console.log(`Control '${key}' has errors:`, controlErrors);
+        }
+      });
     }
   }
 }
