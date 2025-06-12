@@ -35,6 +35,7 @@ export class ProfileComponent implements OnInit {
   isEditing = false;
   successMessage = '';
   errorMessage = '';
+  isLoading = false; // Add loading state
 
   ngOnInit() {
     this.loadUserProfile();
@@ -86,6 +87,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
+    this.isLoading = true; // Set loading state to true before save
     try {
       const userDoc = doc(this.firestore, 'users', user.uid);
       const updates = {
@@ -95,7 +97,7 @@ export class ProfileComponent implements OnInit {
       };
       
       await updateDoc(userDoc, updates);
-      this.originalBalance = this.profile.balance; // Update original balance after successful save
+      this.originalBalance = this.profile.balance;
       this.isEditing = false;
       this.successMessage = 'Profile updated successfully';
       setTimeout(() => this.successMessage = '', 3000);
@@ -103,6 +105,8 @@ export class ProfileComponent implements OnInit {
       console.error('Error updating profile:', error);
       this.errorMessage = 'Failed to update profile';
       setTimeout(() => this.errorMessage = '', 3000);
+    } finally {
+      this.isLoading = false; // Set loading state to false after save completes
     }
   }
 
