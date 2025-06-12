@@ -33,6 +33,9 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
   editAmount = 0;
   originalAmount = 0;
 
+  searchQuery = '';
+  filteredTransactions: { docId: string; data: Expense }[] = [];
+
   constructor(private expenseService: ExpenseService) {}
 
   ngOnInit() {
@@ -78,6 +81,9 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
         return dateB.getTime() - dateA.getTime();
       });
 
+      // Initialize filtered transactions
+      this.filteredTransactions = [...this.transactions];
+
       // Calculate total spent
       this.totalSpent = this.transactions.reduce((sum, tx) => sum + Math.abs(tx.data.amount), 0);
       console.log('Updated transactions array:', this.transactions);
@@ -111,13 +117,31 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  onSearch() {
+    if (!this.searchQuery.trim()) {
+      this.filteredTransactions = [...this.transactions];
+      return;
+    }
+
+    const query = this.searchQuery.toLowerCase().trim();
+    this.filteredTransactions = this.transactions.filter(tx => 
+      tx.data.description.toLowerCase().includes(query) ||
+      tx.data.category.toLowerCase().includes(query)
+    );
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.filteredTransactions = [...this.transactions];
+  }
+
   get paginatedTransactions() {
     const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.transactions.slice(start, start + this.itemsPerPage);
+    return this.filteredTransactions.slice(start, start + this.itemsPerPage);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.transactions.length / this.itemsPerPage);
+    return Math.ceil(this.filteredTransactions.length / this.itemsPerPage);
   }
 
   goToPage(page: number) {
