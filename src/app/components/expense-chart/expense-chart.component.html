@@ -1,22 +1,74 @@
 <div class="p-4 sm:p-6">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-    <h2 class="text-xl sm:text-2xl font-bold text-indigo-800 tracking-tight">Weekly Expenses</h2>
-    <span class="inline-block px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full w-fit">This Week</span>
+  <!-- Weekly Summary Section -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+    <div class="bg-gradient-to-br from-pennywise-primary/5 to-pennywise-secondary/5 rounded-xl p-4 border border-pennywise-accent/20">
+      <h3 class="text-sm font-medium text-gray-600 mb-1">This Week's Total</h3>
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-bold text-pennywise-primary">${{ currentWeekTotal.toFixed(2) }}</span>
+        <span 
+          class="text-sm font-medium"
+          [class.text-green-600]="weekOverWeekChange < 0"
+          [class.text-red-600]="weekOverWeekChange > 0"
+        >
+          {{ weekOverWeekChange > 0 ? '+' : '' }}{{ weekOverWeekChange.toFixed(1) }}%
+        </span>
+      </div>
+      <p class="text-xs text-gray-500 mt-1">vs last week</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-pennywise-accent/5 to-pennywise-secondary/5 rounded-xl p-4 border border-pennywise-accent/20">
+      <h3 class="text-sm font-medium text-gray-600 mb-1">Average Daily Spend</h3>
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-bold text-pennywise-primary">${{ (currentWeekTotal / 7).toFixed(2) }}</span>
+      </div>
+      <p class="text-xs text-gray-500 mt-1">per day this week</p>
+    </div>
   </div>
 
-  <div class="relative w-full h-60 sm:h-80 flex items-center justify-center bg-white/50 rounded-xl p-4">
-    <canvas
-      baseChart
-      [data]="barChartData"
-      [options]="barChartOptions"
-      [type]="barChartType"
-      class="w-full h-full"
-    >
-    </canvas>
+  <!-- Chart Section -->
+  <div class="bg-white/50 rounded-xl p-4 border border-pennywise-accent/20 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <h2 class="text-lg font-semibold text-gray-700">Daily Expenses</h2>
+      <span class="inline-flex items-center px-3 py-1 text-xs font-medium bg-pennywise-accent/20 text-pennywise-primary rounded-full">
+        <svg class="w-3 h-3 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        This Week
+      </span>
+    </div>
+
+    <div class="relative w-full h-60 sm:h-80">
+      <canvas
+        baseChart
+        [data]="barChartData"
+        [options]="barChartOptions"
+        [type]="barChartType"
+        class="w-full h-full"
+      >
+      </canvas>
+    </div>
   </div>
 
-  <div class="flex justify-between mt-4 text-xs sm:text-sm text-gray-600 px-2">
-    <span>Lowest</span>
-    <span>Highest</span>
+  <!-- Category Breakdown -->
+  <div class="bg-white/50 rounded-xl p-4 border border-pennywise-accent/20">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Category Breakdown</h3>
+    <div class="space-y-4">
+      <div *ngFor="let category of categoryBreakdown" class="space-y-2">
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-medium text-gray-600 capitalize">{{ category.category }}</span>
+          <span class="text-pennywise-primary font-semibold">${{ category.amount.toFixed(2) }}</span>
+        </div>
+        <div class="w-full bg-gray-100 rounded-full h-2">
+          <div 
+            class="h-2 rounded-full bg-gradient-to-r from-pennywise-primary to-pennywise-secondary"
+            [style.width.%]="category.percentage"
+          ></div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500">
+          <span>{{ category.percentage.toFixed(1) }}% of total</span>
+          <span>{{ (category.amount / 7).toFixed(2) }}/day</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
