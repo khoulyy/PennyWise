@@ -11,11 +11,13 @@ import { Expense } from '../../models/expense';
 import { Timestamp, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
+import { ChatbotModalComponent } from '../../components/chatbot-modal/chatbot-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
+    ChatbotModalComponent,
     RouterModule,
     ExpenseChartComponent,
     LogoutBtnComponent,

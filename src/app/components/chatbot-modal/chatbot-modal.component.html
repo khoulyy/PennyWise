@@ -1,0 +1,64 @@
+<!-- Chatbot Floating Button with Professional Label -->
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+  <!-- Label -->
+  <div class="bg-white text-gray-800 text-sm px-4 py-1 rounded-full shadow border border-gray-200 font-medium">
+    💡 Get financial advice
+  </div>
+
+  <!-- Chat Button -->
+  <button (click)="open()"
+    class="bg-pennywise-primary hover:bg-pennywise-secondary text-white text-xl p-4 rounded-full shadow-md transition">
+    💬
+  </button>
+</div>
+
+
+<!-- Modal Overlay -->
+<div *ngIf="isOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-2xl shadow-xl flex flex-col h-[80vh] overflow-hidden transition-all border border-gray-200">
+
+    <!-- Header -->
+    <div class="p-4 border-b">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-800">💬 Pennywise Assistant</h2>
+        <button (click)="close()" class="text-gray-500 hover:text-red-500 text-xl leading-none">×</button>
+      </div>
+      <p class="text-xs text-gray-400 mt-1">Ask me anything about budgeting or expenses</p>
+    </div>
+
+    <!-- Chat Body -->
+    <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50">
+      <div *ngFor="let msg of messages" class="max-w-[85%]"
+        [ngClass]="msg.role === 'USER' ? 'ml-auto text-right' : 'mr-auto text-left'">
+        <div
+          [ngClass]="msg.role === 'USER' ? 'bg-pennywise-primary text-white' : 'bg-white text-gray-800 border border-gray-200'"
+          class="px-4 py-2 rounded-xl text-sm whitespace-pre-wrap shadow-sm">
+          {{ msg.content }}
+        </div>
+      </div>
+      <div *ngIf="loading" class="text-center text-xs text-gray-400">AI is thinking...</div>
+    </div>
+
+    <!-- Common Questions (now above input) -->
+    <div class="px-4 pt-2 pb-1 border-t bg-white">
+      <p class="text-xs text-gray-500 mb-1">Try asking:</p>
+      <div class="flex flex-wrap gap-2 mb-2">
+        <button *ngFor="let q of commonQuestions"
+          (click)="sendCommonQuestion(q)"
+          class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition whitespace-nowrap">
+          {{ q }}
+        </button>
+      </div>
+
+      <!-- Input -->
+      <div class="flex gap-2 items-center">
+        <input [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Type your message..."
+          class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-pennywise-primary text-sm" />
+        <button (click)="sendMessage()"
+          class="bg-pennywise-primary hover:bg-pennywise-secondary text-white px-4 py-2 rounded-md text-sm transition">
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -124,7 +124,7 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
     }
 
     const query = this.searchQuery.toLowerCase().trim();
-    this.filteredTransactions = this.transactions.filter(tx => 
+    this.filteredTransactions = this.transactions.filter(tx =>
       tx.data.description.toLowerCase().includes(query) ||
       tx.data.category.toLowerCase().includes(query)
     );
@@ -215,4 +215,67 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
 
     this.selectedDocId = null;
   }
+
+///======================
+// Chatbot variables
+isOpen = false;
+messages: { role: string; content: string }[] = [];
+userInput = '';
+loading = false;
+
+commonQuestions = [
+  'How can I manage my spending better?',
+  'What’s the best way to budget?',
+  'Give me tips to save more money.',
+  'How can I stop unnecessary expenses?',
+];
+
+sendCommonQuestion(question: string) {
+  this.userInput = question;
+  this.sendMessage();
+}
+
+async sendMessage() {
+  if (!this.userInput.trim()) return;
+
+  const userMsg = { role: 'USER', content: this.userInput };
+  this.messages.push(userMsg);
+  this.userInput = '';
+  this.loading = true;
+
+  try {
+    const response = await fetch('https://api.cohere.ai/v1/chat', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer djwltfUdLPlDovgZIcbHkBEjLEokWqW3xCXW8zDg', // Replace this with your key
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'command-r-plus',
+        message: userMsg.content,
+        chat_history: this.messages.map(m => ({
+          role: m.role,
+          message: m.content,
+        })),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.text) {
+      throw new Error(data.message || 'Chat failed');
+    }
+
+    this.messages.push({ role: 'CHATBOT', content: data.text.trim() });
+  } catch (err: any) {
+    const errorMsg =
+      err?.message || (typeof err === 'object' ? JSON.stringify(err) : 'Unknown error');
+    this.messages.push({ role: 'CHATBOT', content: '❌ ' + errorMsg });
+  } finally {
+    this.loading = false;
+  }
+}
+
+
+
 }
