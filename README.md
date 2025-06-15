@@ -9,6 +9,8 @@ Pennywise is a modern personal finance tracker built with Angular and Firebase. 
 
 ## 📸 Demo
 
+https://pennywise-7b083.web.app/
+
 ---
 
 ## Features
