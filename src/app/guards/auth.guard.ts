@@ -1,15 +1,17 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { onAuthStateChanged, Auth } from '@angular/fire/auth';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const auth = inject(Auth);
+  const router = inject(Router);
+
   return new Promise<boolean>((resolve) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // If already authenticated and trying to access login (''), redirect to /home
         if (state.url === '' || state.url === '/') {
-          window.location.href = '/home';
+          router.navigate(['/home']);
           resolve(false);
         } else {
           resolve(true);
@@ -17,7 +19,7 @@ export const authGuard: CanActivateFn = (route, state) => {
       } else {
         // Not authenticated, allow access to login
         if (state.url === '/home') {
-          window.location.href = '';
+          router.navigate(['']);
           resolve(false);
         } else {
           resolve(true);
