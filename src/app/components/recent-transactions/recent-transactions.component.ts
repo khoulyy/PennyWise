@@ -59,7 +59,7 @@ export class RecentTransactionsComponent implements OnInit, OnDestroy {
               };
             })
             .sort((a, b) => b.date.getTime() - a.date.getTime())
-            .slice(0, 3);
+            .slice(0, 5);
         }, (error) => {
           console.error('Error fetching transactions:', error);
         });

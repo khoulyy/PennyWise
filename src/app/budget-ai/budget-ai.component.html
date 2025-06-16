@@ -1,0 +1,14 @@
+<button
+  class="bg-pennywise-primary text-white px-4 py-2 rounded-lg hover:bg-pennywise-secondary transition"
+  (click)="generateAdvice()"
+>
+  Generate Budget Advice
+</button>
+
+<div *ngIf="loading" class="mt-4 text-gray-500 italic animate-pulse">
+  Analyzing your expenses...
+</div>
+
+<div *ngIf="!loading && advice" class="mt-4 whitespace-pre-line text-sm leading-relaxed text-gray-700 bg-gray-100 p-4 rounded-xl shadow">
+  {{ advice }}
+</div>

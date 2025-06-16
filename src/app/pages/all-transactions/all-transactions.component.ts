@@ -24,7 +24,7 @@ export class AllTransactionsComponent implements OnInit, OnDestroy {
 
   transactions: { docId: string; data: Expense }[] = [];
   currentPage = 1;
-  itemsPerPage = 10;
+  itemsPerPage = 7;
   totalSpent: number | undefined;
   balance: number | undefined;
 
